@@ -39,7 +39,8 @@ endif()
 
 add_executable(
         study_vector_tests
-        ExampleTest.cpp
+        vector.h
+        StudyVectorTest.cpp
 )
 target_link_libraries(study_vector_tests gtest_main)
 add_test(NAME example_test COMMAND example)
