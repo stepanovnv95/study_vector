@@ -37,4 +37,9 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 ## End Google Test ##
 
-add_executable(study_vector main.cpp)
+add_executable(
+        study_vector_tests
+        ExampleTest.cpp
+)
+target_link_libraries(study_vector_tests gtest_main)
+add_test(NAME example_test COMMAND example)
