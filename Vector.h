@@ -2,6 +2,7 @@
 #define STUDY_VECTOR_VECTOR_H
 
 #include <algorithm>
+#include <memory>
 
 
 namespace study {
@@ -12,16 +13,14 @@ class Vector
 public:
     Vector()
         : capacity_(0),
-          size_(0),
-          data_(nullptr)
+          size_(0)
     {}
 
-    ~Vector()
-    {
-        if (data_) {
-            delete [] data_;
-        }
-    }
+    explicit Vector(size_t capacity)
+        : capacity_(capacity),
+          size_(0),
+          data_(std::unique_ptr<T[]>(new T[capacity]))
+    {}
 
     size_t size() const
     {
@@ -40,12 +39,9 @@ private:
     void reallocate()
     {
         size_t newCapacity = capacity_ == 0 ? 10 : capacity_ * 2;
-        T *newData = new T[newCapacity];
-        std::copy(data_, data_ + size_, newData);
-        if (data_) {
-            delete[] data_;
-        }
-        data_ = newData;
+        auto newData = std::unique_ptr<T[]>(new T[newCapacity]);
+        std::copy(data_.get(), data_.get() + size_, newData.get());
+        data_.swap(newData);
     }
 
     void pushToEnd(const T &obj)
@@ -56,7 +52,7 @@ private:
 
     size_t capacity_;
     size_t size_;
-    T *data_;
+    std::unique_ptr<T[]> data_;
 };
 
 }
