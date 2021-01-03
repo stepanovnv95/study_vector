@@ -104,7 +104,7 @@ TEST(StudyVectorTest, AccessOperator)
 TEST(StudyVectorTest, PushBack)
 {
     study::Vector<int> v;
-    v.pushBack(0);
+    v.push_back(0);
 
     ASSERT_EQ(v.size(), 1);
     ASSERT_GE(v.capacity(), 1);
@@ -114,10 +114,10 @@ TEST(StudyVectorTest, PushBack)
 TEST(StudyVectorTest, Swap)
 {
     study::Vector<int> v1;
-    v1.pushBack(1);
-    v1.pushBack(2);
+    v1.push_back(1);
+    v1.push_back(2);
     study::Vector<int> v2;
-    v2.pushBack(3);
+    v2.push_back(3);
     v1.swap(v2);
 
     ASSERT_EQ(v1.size(), 1);

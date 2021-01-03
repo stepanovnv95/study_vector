@@ -67,7 +67,7 @@ public:
         return data_[i];
     }
 
-    void pushBack(const T &obj)
+    void push_back(const T &obj)
     {
         if (size_ == capacity_) {
             reallocate();
