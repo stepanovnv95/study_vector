@@ -10,7 +10,7 @@ static void BM_PushBack(benchmark::State& state)
     for (auto _ : state)
     {
         ContainerType v;
-        for (size_t i = 0; i < 10000; ++i) {
+        for (size_t i = 0; i < 100000; ++i) {
             v.push_back(ValueType());
         }
     }
@@ -26,7 +26,7 @@ static void BM_Iteration(benchmark::State& state)
 {
     for (auto _ : state)
     {
-        ContainerType v(10000);
+        ContainerType v(100000);
         for (auto it = v.begin(); it != v.end(); ++it) {
             *it = 1;
         }
