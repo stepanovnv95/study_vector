@@ -65,7 +65,6 @@ TEST(StudyVectorTest, AssigmentMove)
     v2 = std::move(v1);
 
     ASSERT_EQ(v2[0], 4);
-    ASSERT_EQ(v1.size(), 0);
 }
 
 TEST(StudyVectorTest, Capacity)
