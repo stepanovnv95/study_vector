@@ -125,3 +125,18 @@ TEST(StudyVectorTest, Swap)
     ASSERT_EQ(v2[0], 1);
     ASSERT_EQ(v2[1], 2);
 }
+
+TEST(StudyVectorTest, Iteration)
+{
+    study::Vector<int> v(5);
+    int counter = 1;
+    for (auto it = v.begin(); it != v.end(); ++it) {
+        *it = counter;
+        ++counter;
+    }
+    counter = 1;
+    for (auto it = v.cbegin(); it != v.cend(); ++it) {
+        ASSERT_EQ(*it, counter);
+        ++counter;
+    }
+}

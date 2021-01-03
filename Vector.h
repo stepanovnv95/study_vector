@@ -11,6 +11,8 @@ template <class T>
 class Vector
 {
 public:
+    using value_type = T;
+
     Vector()
         : capacity_(0),
           size_(0)
@@ -80,6 +82,73 @@ public:
         std::swap(capacity_, other.capacity_);
         std::swap(size_, other.size_);
         std::swap(data_, other.data_);
+    }
+
+    template <class VT>
+    class Iterator
+    {
+    public:
+        using difference_type = std::ptrdiff_t;
+        using value_type = VT;
+        using pointer = value_type*;
+        using reference = value_type&;
+        using iterator_category = std::forward_iterator_tag;
+
+    private:
+        friend class Vector;
+        Iterator(T *ptr)
+            : ptr_(ptr)
+        {}
+
+    public:
+        bool operator==(const Iterator& other)
+        {
+            return ptr_ == other.ptr_;
+        }
+
+        bool operator!=(const Iterator& other)
+        {
+            return !(*this == other);
+        }
+
+        Iterator& operator++()
+        {
+            ++ptr_;
+            return *this;
+        }
+
+        reference operator*()
+        {
+            return *ptr_;
+        }
+
+        pointer operator->()
+        {
+            return ptr_;
+        }
+
+    private:
+        VT* ptr_;
+    };
+
+    Iterator<T> begin()
+    {
+        return Iterator<T>(data_.get());
+    }
+
+    Iterator<T> end()
+    {
+        return Iterator<T>(data_.get() + size_);
+    }
+
+    Iterator<const T> cbegin() const
+    {
+        return Iterator<const T>(data_.get());
+    }
+
+    Iterator<const T> cend() const
+    {
+        return Iterator<const T>(data_.get() + size_);
     }
 
 private:
