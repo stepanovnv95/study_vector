@@ -154,3 +154,18 @@ TEST(StudyVectorTest, Iteration)
         ++counter;
     }
 }
+
+TEST(StudyVectorTest, RangeFor)
+{
+    study::Vector<int> v;
+    v.push_back(-1);
+    v.push_back(-1);
+    v.push_back(-1);
+
+    size_t counter = 0;
+    for (auto value : v) {
+        ASSERT_EQ(value, -1);
+        ++counter;
+    }
+    ASSERT_EQ(counter, 3);
+}
