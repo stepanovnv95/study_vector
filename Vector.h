@@ -84,6 +84,14 @@ public:
         std::swap(data_, other.data_);
     }
 
+    void resize(size_t count)
+    {
+        if (count < capacity_) {
+            reallocate(count);
+        }
+        size_ = count;
+    }
+
     template <class VT>
     class Iterator
     {
@@ -152,9 +160,14 @@ public:
     }
 
 private:
-    void reallocate()
+    void reallocate(size_t count=0)
     {
-        size_t newCapacity = capacity_ == 0 ? 10 : capacity_ * 2;
+        size_t newCapacity;
+        if (count == 0) {
+            newCapacity = capacity_ == 0 ? 10 : capacity_ * 2;
+        } else {
+            newCapacity = count;
+        }
         auto newData = std::unique_ptr<T[]>(new T[newCapacity]);
         std::copy(data_.get(), data_.get() + size_, newData.get());
         data_.swap(newData);

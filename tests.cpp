@@ -126,6 +126,20 @@ TEST(StudyVectorTest, Swap)
     ASSERT_EQ(v2[1], 2);
 }
 
+TEST(StudyVectorTest, Resize)
+{
+    study::Vector<int> v;
+    v.push_back(-2);
+    v.resize(2);
+
+    ASSERT_EQ(v.size(), 2);
+    ASSERT_EQ(v[0], -2);
+
+    v.resize(100);
+    ASSERT_EQ(v.size(), 100);
+    ASSERT_EQ(v[0], -2);
+}
+
 TEST(StudyVectorTest, Iteration)
 {
     study::Vector<int> v(5);
