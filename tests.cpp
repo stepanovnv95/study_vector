@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "Vector.h"
+#include "mocks.h"
 
 
 TEST(StudyVectorTest, DefaultConstructor)
@@ -106,7 +107,7 @@ TEST(StudyVectorTest, PushBack)
     v.push_back(0);
 
     ASSERT_EQ(v.size(), 1);
-    ASSERT_GE(v.capacity(), 1);
+    ASSERT_GT(v.capacity(), 1);
     ASSERT_EQ(v[0], 0);
 }
 
@@ -126,7 +127,7 @@ TEST(StudyVectorTest, Swap)
     ASSERT_EQ(v2[1], 2);
 }
 
-TEST(StudyVectorTest, Resize)
+TEST(StudyVectorTest, ResizeUp)
 {
     study::Vector<int> v;
     v.push_back(-2);
@@ -138,6 +139,16 @@ TEST(StudyVectorTest, Resize)
     v.resize(100);
     ASSERT_EQ(v.size(), 100);
     ASSERT_EQ(v[0], -2);
+}
+
+TEST(StudyVectorTest, ResizeDown)
+{
+    ConstructDestructCounterMock_construct = 0;
+    ConstructDestructCounterMock_destruct = 0;
+    study::Vector<ConstructDestructCounterMock> v(10);
+    v.resize(5);
+    ASSERT_EQ(ConstructDestructCounterMock_construct, 10);
+    ASSERT_EQ(ConstructDestructCounterMock_destruct, 5);
 }
 
 TEST(StudyVectorTest, Iteration)
