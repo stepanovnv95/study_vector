@@ -1,7 +1,6 @@
 #ifndef STUDY_VECTOR_VECTOR_H
 #define STUDY_VECTOR_VECTOR_H
 
-#include <algorithm>
 #include <memory>
 #include <type_traits>
 
@@ -28,7 +27,7 @@ public:
           data_(makeStorage(size))
     {
         for (auto it = data_.get(); it != data_.get() + size; ++it) {
-            new (std::launder(reinterpret_cast<value_type*>(it))) value_type;
+            new (storageToValueType(it)) value_type;
         }
     }
 
@@ -69,14 +68,16 @@ public:
         return size_;
     }
 
+    [[nodiscard]]
     const value_type& operator[](size_t i) const
     {
-        return *std::launder(reinterpret_cast<value_type*>(data_.get() + i));
+        return *storageToValueType(data_.get() + i);
     }
 
+    [[nodiscard]]
     value_type& operator[](size_t i)
     {
-        return *std::launder(reinterpret_cast<value_type*>(data_.get() + i));
+        return *storageToValueType(data_.get() + i);
     }
 
     void push_back(value_type&& obj)
@@ -96,8 +97,10 @@ public:
 
     void resize(size_t count)
     {
-        // TODO
-        if (count < capacity_) {
+        if (count < size_) {
+            destructValues(data_.get() + count, data_.get() + size_);
+        }
+        if (count > capacity_) {
             reallocate(count);
         }
         size_ = count;
@@ -120,11 +123,13 @@ public:
         {}
 
     public:
+        [[nodiscard]]
         bool operator==(const Iterator& other)
         {
             return ptr_ == other.ptr_;
         }
 
+        [[nodiscard]]
         bool operator!=(const Iterator& other)
         {
             return !(*this == other);
@@ -136,11 +141,13 @@ public:
             return *this;
         }
 
+        [[nodiscard]]
         pointer operator->()
         {
-            return std::launder(reinterpret_cast<pointer>(ptr_));
+            return Vector::storageToValueType(ptr_);
         }
 
+        [[nodiscard]]
         reference operator*()
         {
             return *operator->();
@@ -150,27 +157,38 @@ public:
         StorageType* ptr_;
     };
 
+    [[nodiscard]]
     Iterator<value_type> begin()
     {
         return Iterator<value_type>(data_.get());
     }
 
+    [[nodiscard]]
     Iterator<value_type> end()
     {
         return Iterator<value_type>(data_.get() + size_);
     }
 
+    [[nodiscard]]
     Iterator<const value_type> cbegin() const
     {
         return Iterator<const value_type>(data_.get());
     }
 
+    [[nodiscard]]
     Iterator<const value_type> cend() const
     {
         return Iterator<const value_type>(data_.get() + size_);
     }
 
 private:
+    [[nodiscard]]
+    static value_type* storageToValueType(StorageType* p)
+    {
+        return std::launder(reinterpret_cast<value_type*>(p));
+    }
+
+    [[nodiscard]]
     std::unique_ptr<StorageType[]> makeStorage(size_t size) const
     {
         return std::unique_ptr<StorageType[]>(new StorageType[size]);
@@ -178,12 +196,12 @@ private:
 
     void copyValues(StorageType* source, StorageType* target, size_t size)
     {
-        StorageType* otherStorage = source;
-        StorageType* storage = target;
-        for (; otherStorage != source + size; ++otherStorage, ++storage) {
-            value_type* otherValue = std::launder(reinterpret_cast<value_type*>(otherStorage));
-            value_type* value = std::launder(reinterpret_cast<value_type*>(storage));
-            new (value) value_type(*otherValue);
+        StorageType* sourceIt = source;
+        StorageType* targetIt = target;
+        for (; sourceIt != source + size; ++sourceIt, ++targetIt) {
+            value_type* sourceValue = storageToValueType(sourceIt);
+            value_type* targetValue = storageToValueType(targetIt);
+            new (targetValue) value_type(*sourceValue);
         }
     }
 
@@ -203,8 +221,17 @@ private:
 
     void pushToEnd(value_type&& obj)
     {
-        new (std::launder(reinterpret_cast<value_type*>(data_.get() + size_))) value_type(std::forward<value_type>(obj));
+        new (storageToValueType(data_.get() + size_)) value_type(std::forward<value_type>(obj));
         ++size_;
+    }
+
+    void destructValues(StorageType* begin, StorageType* end)
+    {
+        if constexpr (std::is_destructible_v<value_type>) {
+            for (auto it = begin; it != end; ++it) {
+                storageToValueType(it)->~value_type();
+            }
+        }
     }
 
     size_t capacity_;
