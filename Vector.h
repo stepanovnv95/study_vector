@@ -80,12 +80,18 @@ public:
         return *storageToValueType(data_.get() + i);
     }
 
-    void push_back(value_type&& obj)
+    template <class ...Args>
+    void emplace_back(Args ...args)
     {
         if (size_ == capacity_) {
             reallocate();
         }
-        pushToEnd(std::forward<value_type>(obj));
+        emplaceToEnd(std::forward<Args>(args)...);
+    }
+
+    void push_back(value_type&& obj)
+    {
+        emplace_back(std::forward<value_type>(obj));
     }
 
     void swap(Vector &other) noexcept
@@ -234,9 +240,10 @@ private:
         capacity_ = newCapacity;
     }
 
-    void pushToEnd(value_type&& obj)
+    template <class ...Args>
+    void emplaceToEnd(Args ...args)
     {
-        new (storageToValueType(data_.get() + size_)) value_type(std::forward<value_type>(obj));
+        new (storageToValueType(data_.get() + size_)) value_type(std::forward<Args>(args)...);
         ++size_;
     }
 

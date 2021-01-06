@@ -200,3 +200,10 @@ TEST(StudyVectorTest, MoveOnReallocate)
     ASSERT_FALSE(mock.copyConstructed);
     ASSERT_TRUE(mock.moveConstructed);
 }
+
+TEST(StudyVectorTest, EmplacePush)
+{
+    study::Vector<CopyMoveMock> v;
+    v.emplace_back();
+    ASSERT_TRUE(v[0].defaultConstructed);
+}
