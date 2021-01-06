@@ -180,3 +180,23 @@ TEST(StudyVectorTest, RangeFor)
     }
     ASSERT_EQ(counter, 3);
 }
+
+TEST(StudyVectorTest, CopyOnReallocate)
+{
+    study::Vector<CopyMoveMock> v(1);
+    v.resize(100);
+    const CopyMoveMock& mock = v[0];
+    ASSERT_FALSE(mock.defaultConstructed);
+    ASSERT_TRUE(mock.copyConstructed);
+    ASSERT_FALSE(mock.moveConstructed);
+}
+
+TEST(StudyVectorTest, MoveOnReallocate)
+{
+    study::Vector<CopyNoexceptMoveMock> v(1);
+    v.resize(100);
+    const CopyNoexceptMoveMock& mock = v[0];
+    ASSERT_FALSE(mock.defaultConstructed);
+    ASSERT_FALSE(mock.copyConstructed);
+    ASSERT_TRUE(mock.moveConstructed);
+}

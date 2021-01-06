@@ -205,6 +205,17 @@ private:
         }
     }
 
+    void moveValues(StorageType* source, StorageType* target, size_t size)
+    {
+        StorageType* sourceIt = source;
+        StorageType* targetIt = target;
+        for (; sourceIt != source + size; ++sourceIt, ++targetIt) {
+            value_type* sourceValue = storageToValueType(sourceIt);
+            value_type* targetValue = storageToValueType(targetIt);
+            new (targetValue) value_type(std::move(*sourceValue));
+        }
+    }
+
     void reallocate(size_t count=0)
     {
         size_t newCapacity;
@@ -214,7 +225,11 @@ private:
             newCapacity = count;
         }
         auto newData = makeStorage(newCapacity);
-        copyValues(data_.get(), newData.get(), size_);
+        if constexpr (std::is_nothrow_move_constructible_v<value_type>) {
+            moveValues(data_.get(), newData.get(), size_);
+        } else {
+            copyValues(data_.get(), newData.get(), size_);
+        }
         data_.swap(newData);
         capacity_ = newCapacity;
     }

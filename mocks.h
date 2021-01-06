@@ -19,4 +19,58 @@ public:
     }
 };
 
+
+class CopyMoveMock
+{
+public:
+    CopyMoveMock()
+        : defaultConstructed(true),
+          copyConstructed(false),
+          moveConstructed(false)
+    {}
+
+    CopyMoveMock(const CopyMoveMock& other)
+        : defaultConstructed(false),
+          copyConstructed(true),
+          moveConstructed(false)
+    {}
+
+    CopyMoveMock(CopyMoveMock&& other)
+        : defaultConstructed(false),
+          copyConstructed(false),
+          moveConstructed(true)
+    {}
+
+    bool defaultConstructed;
+    bool copyConstructed;
+    bool moveConstructed;
+};
+
+
+class CopyNoexceptMoveMock
+{
+public:
+    CopyNoexceptMoveMock()
+        : defaultConstructed(true),
+          copyConstructed(false),
+          moveConstructed(false)
+    {}
+
+    CopyNoexceptMoveMock(const CopyNoexceptMoveMock& other)
+        : defaultConstructed(false),
+          copyConstructed(true),
+          moveConstructed(false)
+    {}
+
+    CopyNoexceptMoveMock(CopyNoexceptMoveMock&& other) noexcept
+        : defaultConstructed(false),
+          copyConstructed(false),
+          moveConstructed(true)
+    {}
+
+    bool defaultConstructed;
+    bool copyConstructed;
+    bool moveConstructed;
+};
+
 #endif //STUDY_VECTOR_MOCKS_H
