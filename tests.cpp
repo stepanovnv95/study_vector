@@ -207,3 +207,21 @@ TEST(StudyVectorTest, EmplacePush)
     v.emplace_back();
     ASSERT_TRUE(v[0].defaultConstructed);
 }
+
+TEST(StudyVectorTest, InitializerListMove)
+{
+    study::Vector<int> v = { -1, 0, 1 };
+    ASSERT_EQ(v.size(), 3);
+    ASSERT_EQ(v[0], -1);
+    ASSERT_EQ(v[1], 0);
+    ASSERT_EQ(v[2], 1);
+}
+
+TEST(StudyVectorTest, StudyVectorTest)
+{
+    auto il = {2, 3};
+    study::Vector<int> v;
+    v = il;
+    ASSERT_EQ(v[0], 2);
+    ASSERT_EQ(v[1], 3);
+}

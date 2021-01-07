@@ -31,6 +31,28 @@ public:
         }
     }
 
+    Vector(std::initializer_list<value_type>&& initList)
+        : capacity_(initList.size()),
+          size_(initList.size()),
+          data_(makeStorage(initList.size()))
+    {
+        StorageType* p = data_.get();
+        for (auto it = std::begin(initList); it != std::end(initList); ++it, ++p) {
+            new (storageToValueType(p)) value_type(std::move(*it));
+        }
+    }
+
+    Vector(const std::initializer_list<value_type>& initList)
+            : capacity_(initList.size()),
+              size_(initList.size()),
+              data_(makeStorage(initList.size()))
+    {
+        StorageType* p = data_.get();
+        for (auto it = std::begin(initList); it != std::end(initList); ++it, ++p) {
+            new (storageToValueType(p)) value_type(*it);
+        }
+    }
+
     Vector(const Vector &other)
         : capacity_(other.capacity_),
           size_(other.size_),
