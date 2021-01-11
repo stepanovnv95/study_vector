@@ -31,50 +31,47 @@ public:
         }
     }
 
-    Vector(std::initializer_list<value_type>&& initList)
-        : capacity_(initList.size()),
-          size_(initList.size()),
-          data_(makeStorage(initList.size()))
-    {
-        StorageType* p = data_.get();
-        for (auto it = std::begin(initList); it != std::end(initList); ++it, ++p) {
-            new (storageToValueType(p)) value_type(std::move(*it));
-        }
-    }
-
-    Vector(const std::initializer_list<value_type>& initList)
-            : capacity_(initList.size()),
-              size_(initList.size()),
-              data_(makeStorage(initList.size()))
-    {
-        StorageType* p = data_.get();
-        for (auto it = std::begin(initList); it != std::end(initList); ++it, ++p) {
-            new (storageToValueType(p)) value_type(*it);
-        }
-    }
-
     Vector(const Vector &other)
         : capacity_(other.capacity_),
           size_(other.size_),
           data_(makeStorage(capacity_))
     {
-        copyValues(other.data_.get(), data_.get(), size_);
-    }
-
-    Vector& operator=(const Vector &other)
-    {
-        swap(Vector(other));
-        return *this;
+        copyValues(other.data_.get(), other.data_.get() + size_, data_.get());
     }
 
     Vector(Vector&& other) noexcept
+        : capacity_(other.capacity_),
+          size_(other.size_),
+          data_(std::move(other.data_))
+    {}
+
+    Vector(const std::initializer_list<value_type>& initList)
+        : capacity_(initList.size()),
+          size_(initList.size()),
+          data_(makeStorage(initList.size()))
     {
-        swap(other);
+        StorageType* storageIt = data_.get();
+        auto initListIt = std::begin(initList);
+        for (; initListIt != std::end(initList); ++initListIt, ++storageIt) {
+            value_type* value = storageToValueType(storageIt);
+            new (value) value_type(*initListIt);
+        }
+    }
+
+    Vector& operator=(const Vector& other)
+    {
+        capacity_ = other.capacity_;
+        size_ = other.size_;
+        data_ = makeStorage(size_);
+        copyValues(other.data_.get(), other.data_.get() + size_, data_.get());
+        return *this;
     }
 
     Vector& operator=(Vector&& other) noexcept
     {
-        swap(other);
+        capacity_ = other.capacity_;
+        size_ = other.size_;
+        data_ = std::move(other.data_);
         return *this;
     }
 
@@ -103,7 +100,7 @@ public:
     }
 
     template <class ...Args>
-    void emplace_back(Args ...args)
+    void emplace_back(Args&& ...args)
     {
         if (size_ == capacity_) {
             reallocate();
@@ -222,25 +219,34 @@ private:
         return std::unique_ptr<StorageType[]>(new StorageType[size]);
     }
 
-    void copyValues(StorageType* source, StorageType* target, size_t size)
+    void copyValues(StorageType* sourceBegin, StorageType* sourceEnd, StorageType* targetBegin)
     {
-        StorageType* sourceIt = source;
-        StorageType* targetIt = target;
-        for (; sourceIt != source + size; ++sourceIt, ++targetIt) {
+        StorageType* sourceIt = sourceBegin;
+        StorageType* targetIt = targetBegin;
+        for (; sourceIt != sourceEnd; ++sourceIt, ++targetIt) {
             value_type* sourceValue = storageToValueType(sourceIt);
             value_type* targetValue = storageToValueType(targetIt);
             new (targetValue) value_type(*sourceValue);
         }
     }
 
-    void moveValues(StorageType* source, StorageType* target, size_t size)
+    void moveValues(StorageType* sourceBegin, StorageType* sourceEnd, StorageType* targetBegin)
     {
-        StorageType* sourceIt = source;
-        StorageType* targetIt = target;
-        for (; sourceIt != source + size; ++sourceIt, ++targetIt) {
+        StorageType* sourceIt = sourceBegin;
+        StorageType* targetIt = targetBegin;
+        for (; sourceIt != sourceEnd; ++sourceIt, ++targetIt) {
             value_type* sourceValue = storageToValueType(sourceIt);
             value_type* targetValue = storageToValueType(targetIt);
             new (targetValue) value_type(std::move(*sourceValue));
+        }
+    }
+
+    void destructValues(StorageType* begin, StorageType* end)
+    {
+        if constexpr (std::is_destructible_v<value_type>) {
+            for (auto it = begin; it != end; ++it) {
+                storageToValueType(it)->~value_type();
+            }
         }
     }
 
@@ -254,28 +260,20 @@ private:
         }
         auto newData = makeStorage(newCapacity);
         if constexpr (std::is_nothrow_move_constructible_v<value_type>) {
-            moveValues(data_.get(), newData.get(), size_);
+            moveValues(data_.get(), data_.get() + size_, newData.get());
         } else {
-            copyValues(data_.get(), newData.get(), size_);
+            copyValues(data_.get(), data_.get() + size_, newData.get());
+            destructValues(data_.get(), data_.get() + size_);
         }
         data_.swap(newData);
         capacity_ = newCapacity;
     }
 
     template <class ...Args>
-    void emplaceToEnd(Args ...args)
+    void emplaceToEnd(Args&& ...args)
     {
         new (storageToValueType(data_.get() + size_)) value_type(std::forward<Args>(args)...);
         ++size_;
-    }
-
-    void destructValues(StorageType* begin, StorageType* end)
-    {
-        if constexpr (std::is_destructible_v<value_type>) {
-            for (auto it = begin; it != end; ++it) {
-                storageToValueType(it)->~value_type();
-            }
-        }
     }
 
     size_t capacity_;

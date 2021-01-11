@@ -34,6 +34,24 @@ TEST(StudyVectorTest, CopyConstructor)
     ASSERT_EQ(v1[1], v2[1]);
 }
 
+TEST(StudyVectorTest, MoveConstructor)
+{
+    study::Vector<int> v1(1);
+    v1[0] = 2;
+    study::Vector<int> v2(std::move(v1));
+
+    ASSERT_EQ(v2[0], 2);
+}
+
+TEST(StudyVectorTest, InitializerListConstructor)
+{
+    study::Vector<int> v({ -1, 0, 1 });
+    ASSERT_EQ(v.size(), 3);
+    ASSERT_EQ(v[0], -1);
+    ASSERT_EQ(v[1], 0);
+    ASSERT_EQ(v[2], 1);
+}
+
 TEST(StudyVectorTest, AssigmentCopy)
 {
     study::Vector<int> v1(2);
@@ -47,15 +65,6 @@ TEST(StudyVectorTest, AssigmentCopy)
     ASSERT_EQ(v2[1], 5);
     ASSERT_EQ(v1[0], v2[0]);
     ASSERT_EQ(v1[1], v2[1]);
-}
-
-TEST(StudyVectorTest, MoveConstructor)
-{
-    study::Vector<int> v1(1);
-    v1[0] = 2;
-    study::Vector<int> v2(std::move(v1));
-
-    ASSERT_EQ(v2[0], 2);
 }
 
 TEST(StudyVectorTest, AssigmentMove)
@@ -99,6 +108,13 @@ TEST(StudyVectorTest, AccessOperator)
     const study::Vector<int> &v2 = v1;
 
     ASSERT_EQ(v2[0], 2);
+}
+
+TEST(StudyVectorTest, EmplacePush)
+{
+    study::Vector<CopyMoveMock> v;
+    v.emplace_back();
+    ASSERT_TRUE(v[0].defaultConstructed);
 }
 
 TEST(StudyVectorTest, PushBack)
@@ -199,29 +215,4 @@ TEST(StudyVectorTest, MoveOnReallocate)
     ASSERT_FALSE(mock.defaultConstructed);
     ASSERT_FALSE(mock.copyConstructed);
     ASSERT_TRUE(mock.moveConstructed);
-}
-
-TEST(StudyVectorTest, EmplacePush)
-{
-    study::Vector<CopyMoveMock> v;
-    v.emplace_back();
-    ASSERT_TRUE(v[0].defaultConstructed);
-}
-
-TEST(StudyVectorTest, InitializerListMove)
-{
-    study::Vector<int> v = { -1, 0, 1 };
-    ASSERT_EQ(v.size(), 3);
-    ASSERT_EQ(v[0], -1);
-    ASSERT_EQ(v[1], 0);
-    ASSERT_EQ(v[2], 1);
-}
-
-TEST(StudyVectorTest, StudyVectorTest)
-{
-    auto il = {2, 3};
-    study::Vector<int> v;
-    v = il;
-    ASSERT_EQ(v[0], 2);
-    ASSERT_EQ(v[1], 3);
 }
