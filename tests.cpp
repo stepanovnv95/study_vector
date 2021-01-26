@@ -226,3 +226,13 @@ TEST(StudyVectorTest, ThrowOnConstructFromSize)
     ASSERT_EQ(ConstructDestructCounterMock_constructed, 3);
     ASSERT_EQ(ConstructDestructCounterMock_destructed, 3);
 }
+
+TEST(StudyVectorTest, StdCopy)
+{
+    std::vector<int> stdVector = {1, 2, 3};
+    study::Vector<int> studyVector(stdVector.size());
+    std::copy(stdVector.cbegin(), stdVector.cend(), studyVector.begin());
+    ASSERT_EQ(studyVector[0], 1);
+    ASSERT_EQ(studyVector[1], 2);
+    ASSERT_EQ(studyVector[2], 3);
+}
