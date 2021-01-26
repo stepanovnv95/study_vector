@@ -157,13 +157,13 @@ public:
 
     public:
         [[nodiscard]]
-        bool operator==(const Iterator& other)
+        bool operator==(const Iterator& other) const
         {
             return ptr_ == other.ptr_;
         }
 
         [[nodiscard]]
-        bool operator!=(const Iterator& other)
+        bool operator!=(const Iterator& other) const
         {
             return !(*this == other);
         }

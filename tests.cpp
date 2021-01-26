@@ -236,3 +236,12 @@ TEST(StudyVectorTest, StdCopy)
     ASSERT_EQ(studyVector[1], 2);
     ASSERT_EQ(studyVector[2], 3);
 }
+
+TEST(StudyVectorTest, StdFind)
+{
+    study::Vector<char> v = {'x', 'y', 'z'};
+    auto findIt = std::find(v.cbegin(), v.cend(), 'y');
+    ASSERT_EQ(*findIt, 'y');
+    findIt = std::find(v.cbegin(), v.cend(), 'a');
+    ASSERT_EQ(findIt, v.cend());
+}
