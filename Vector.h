@@ -26,8 +26,16 @@ public:
           size_(size),
           data_(makeStorage(size))
     {
-        for (auto it = data_.get(); it != data_.get() + size; ++it) {
-            new (storageToValueType(it)) value_type;
+        auto it = data_.get();
+        try {
+            for (; it != data_.get() + size; ++it) {
+                new(storageToValueType(it)) value_type;
+            }
+        } catch (...) {
+            for (; it != data_.get(); --it) {
+                storageToValueType(it)->~value_type();
+            }
+            throw;
         }
     }
 

@@ -2,20 +2,36 @@
 #define STUDY_VECTOR_MOCKS_H
 
 
-inline unsigned int ConstructDestructCounterMock_construct = 0;
-inline unsigned int ConstructDestructCounterMock_destruct = 0;
+inline unsigned int ConstructDestructCounterMock_constructed = 0;
+inline unsigned int ConstructDestructCounterMock_destructed = 0;
 
 class ConstructDestructCounterMock
 {
 public:
     ConstructDestructCounterMock()
     {
-        ++ConstructDestructCounterMock_construct;
+        ++ConstructDestructCounterMock_constructed;
     }
 
     ~ConstructDestructCounterMock()
     {
-        ++ConstructDestructCounterMock_destruct;
+        ++ConstructDestructCounterMock_destructed;
+    }
+};
+
+
+inline unsigned int ConstructDestructCounterWithThrowOnCopyMock_constructBeforeThrow = 0;
+
+class ConstructDestructCounterWithThrowOnConstructMock : public ConstructDestructCounterMock
+{
+public:
+    ConstructDestructCounterWithThrowOnConstructMock()
+            : ConstructDestructCounterMock()
+    {
+        if (ConstructDestructCounterWithThrowOnCopyMock_constructBeforeThrow == 0) {
+            throw std::exception();
+        }
+        --ConstructDestructCounterWithThrowOnCopyMock_constructBeforeThrow;
     }
 };
 
@@ -29,13 +45,13 @@ public:
           moveConstructed(false)
     {}
 
-    CopyMoveMock(const CopyMoveMock& other)
+    CopyMoveMock(const CopyMoveMock&)
         : defaultConstructed(false),
           copyConstructed(true),
           moveConstructed(false)
     {}
 
-    CopyMoveMock(CopyMoveMock&& other)
+    CopyMoveMock(CopyMoveMock&&)
         : defaultConstructed(false),
           copyConstructed(false),
           moveConstructed(true)
@@ -56,13 +72,13 @@ public:
           moveConstructed(false)
     {}
 
-    CopyNoexceptMoveMock(const CopyNoexceptMoveMock& other)
+    CopyNoexceptMoveMock(const CopyNoexceptMoveMock&)
         : defaultConstructed(false),
           copyConstructed(true),
           moveConstructed(false)
     {}
 
-    CopyNoexceptMoveMock(CopyNoexceptMoveMock&& other) noexcept
+    CopyNoexceptMoveMock(CopyNoexceptMoveMock&&) noexcept
         : defaultConstructed(false),
           copyConstructed(false),
           moveConstructed(true)

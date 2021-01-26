@@ -159,12 +159,12 @@ TEST(StudyVectorTest, ResizeUp)
 
 TEST(StudyVectorTest, ResizeDown)
 {
-    ConstructDestructCounterMock_construct = 0;
-    ConstructDestructCounterMock_destruct = 0;
+    ConstructDestructCounterMock_constructed = 0;
+    ConstructDestructCounterMock_destructed = 0;
     study::Vector<ConstructDestructCounterMock> v(10);
     v.resize(5);
-    ASSERT_EQ(ConstructDestructCounterMock_construct, 10);
-    ASSERT_EQ(ConstructDestructCounterMock_destruct, 5);
+    ASSERT_EQ(ConstructDestructCounterMock_constructed, 10);
+    ASSERT_EQ(ConstructDestructCounterMock_destructed, 5);
 }
 
 TEST(StudyVectorTest, Iteration)
@@ -215,4 +215,14 @@ TEST(StudyVectorTest, MoveOnReallocate)
     ASSERT_FALSE(mock.defaultConstructed);
     ASSERT_FALSE(mock.copyConstructed);
     ASSERT_TRUE(mock.moveConstructed);
+}
+
+TEST(StudyVectorTest, ThrowOnConstructFromSize)
+{
+    ConstructDestructCounterMock_constructed = 0;
+    ConstructDestructCounterMock_destructed = 0;
+    ConstructDestructCounterWithThrowOnCopyMock_constructBeforeThrow = 2;
+    ASSERT_ANY_THROW(study::Vector<ConstructDestructCounterWithThrowOnConstructMock> v(5));
+    ASSERT_EQ(ConstructDestructCounterMock_constructed, 3);
+    ASSERT_EQ(ConstructDestructCounterMock_destructed, 3);
 }
