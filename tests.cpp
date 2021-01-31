@@ -1,3 +1,4 @@
+#include <functional>
 #include <gtest/gtest.h>
 #include "Vector.h"
 #include "mocks.h"
@@ -244,4 +245,23 @@ TEST(StudyVectorTest, StdFind)
     ASSERT_EQ(*findIt, 'y');
     findIt = std::find(v.cbegin(), v.cend(), 'a');
     ASSERT_EQ(findIt, v.cend());
+}
+
+TEST(StudyVectorTest, Pointer)
+{
+    int x = 1;
+    study::Vector<int*> v;
+    v.push_back(&x);
+    *v[0] = 2;
+    ASSERT_EQ(x, 2);
+}
+
+TEST(StudyVectorTest, StdRef)
+{
+    int x = 1;
+    study::Vector<std::reference_wrapper<int>> v;
+    v.push_back(std::ref(x));
+    int &cx = v[0];
+    ++cx;
+    ASSERT_EQ(x, 2);
 }
