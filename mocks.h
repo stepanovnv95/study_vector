@@ -1,6 +1,8 @@
 #ifndef STUDY_VECTOR_MOCKS_H
 #define STUDY_VECTOR_MOCKS_H
 
+#include <memory>
+
 
 inline unsigned int ConstructDestructCounterMock_constructed = 0;
 inline unsigned int ConstructDestructCounterMock_destructed = 0;
@@ -87,6 +89,24 @@ public:
     bool defaultConstructed;
     bool copyConstructed;
     bool moveConstructed;
+};
+
+
+template<typename Type, size_t Size>
+class CopyableData
+{
+    Type data[Size];
+};
+
+
+template<typename Type, size_t Size>
+class MovableData
+{
+    std::unique_ptr<Type[]> data;
+public:
+    MovableData()
+        : data(new Type[Size])
+    {}
 };
 
 #endif //STUDY_VECTOR_MOCKS_H

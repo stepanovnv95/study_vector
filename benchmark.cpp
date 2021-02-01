@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 
 #include <vector>
+#include "mocks.h"
 #include "Vector.h"
 
 
@@ -19,6 +20,10 @@ BENCHMARK_TEMPLATE(BM_PushBack, std::vector<bool>);
 BENCHMARK_TEMPLATE(BM_PushBack, study::Vector<bool>);
 BENCHMARK_TEMPLATE(BM_PushBack, std::vector<int>);
 BENCHMARK_TEMPLATE(BM_PushBack, study::Vector<int>);
+BENCHMARK_TEMPLATE(BM_PushBack, std::vector<CopyableData<double, 100>>);
+BENCHMARK_TEMPLATE(BM_PushBack, study::Vector<CopyableData<double, 100>>);
+BENCHMARK_TEMPLATE(BM_PushBack, std::vector<MovableData<double, 100>>);
+BENCHMARK_TEMPLATE(BM_PushBack, study::Vector<MovableData<double, 100>>);
 
 
 template<class ContainerType>
