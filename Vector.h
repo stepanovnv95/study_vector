@@ -29,11 +29,11 @@ public:
         auto it = data_.get();
         try {
             for (; it != data_.get() + size; ++it) {
-                new(storageToValueType(it)) value_type;
+                new(reinterpret_cast<value_type*>(it)) value_type;
             }
         } catch (...) {
             for (; it != data_.get(); --it) {
-                storageToValueType(it)->~value_type();
+                reinterpret_cast<value_type*>(it)->~value_type();
             }
             throw;
         }
@@ -177,7 +177,7 @@ public:
         [[nodiscard]]
         pointer operator->()
         {
-            return Vector::storageToValueType(ptr_);
+            return reinterpret_cast<value_type*>(ptr_);
         }
 
         [[nodiscard]]
